@@ -13,10 +13,7 @@
             min-height: 250px;
             max-height: 250px;
         }
-        #students_input_box{
-            width: 350px;
-            height: 50vh;
-        }
+        
     </style>
     <script src="mail.js" defer></script>
 </head>
@@ -30,36 +27,50 @@
             Прізвище та ім'я обов'язково<br>
         </div>
     </div>
+    <input type="button" value="Скрити ввід групи" id="swap" onclick="swap_view()">
     <div id="students_input_box">
         <h2>Список групи</h2>
         <textarea name="area_stud_list" id="area_stud_list"></textarea><br>
-        <label for="group_name">Група: </label><input type="text" name="group_name" id="group_name">
-        <input type="button" value="Зберегти список групи" onclick="update_list()">
+        <table>
+            <tr>
+                <td><label for="group_name">Група: </label></td>
+                <td><input type="text" name="group_name" id="group_name"></td>
+            </tr>
+            <tr>
+                <td><label for="meet_url">Код на meet:</label></td>
+                <td><input type="text" name="meet_url" id="meet_url"></td>
+            </tr>
+            <tr>
+                <td colspan="2"><input type="button" value="Зберегти список групи" onclick="update_list()"></td>
+            </tr>
+        </table>
     </div>
     <div>
         <h2>Відвідуваність</h2>
-        <input type="file" name="attendant_file" id="attendant_file">
+        <input type="file" name="attendant_file" id="attendant_file"> 
+        <input type="checkbox" name="not_lk" id="swap_lection" checked><label for="not_lk">1-лекція/0-лабораторні</label><br>
         <input type="button" value="Зафіксувати відвідування" onclick="add_students_date()"><br>
     </div>
     <div>
         <h2>Вивід списків</h2>
         <input type="button" value="Вивести таблицю для групи" onclick="revork_table();get_file.style.display='block'">
-        <select name="select_group" id="select_group">
-        </select>
-        <select name="select_url" id="select_url">
+        <select name="select_group" id="select_group" onchange="">
         </select>
     </div>
-    <input type="button" name="get_file" id="get_file" value="get_file" style="display: none;">
-    <table id="out_list" border="1">
-        <tbody>
-        </tbody>
-    </table>
+    <div>
+        <input type="button" name="get_file" id="get_file" value="Завантажити файл для обраної групи" onclick="load_single_file()" style="display: none;">
+        <input type="button" name="get_all_file" id="get_all_file" value="Завантажити файл з усіма групами" onclick="load_csv_file()" style="display: none;">
+        <table id="out_list" border="1">
+            <tbody>
+            </tbody>
+        </table>
+    </div>
     <div>
         <h2>Невідомі студенти</h2>
-    <table id="unknown_list" border="1">
-        <tbody>
-        </tbody>
-    </table>
+        <table id="unknown_list" border="1">
+            <tbody>
+            </tbody>
+        </table>
     </div>
 </body>
 </html>

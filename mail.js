@@ -1,22 +1,34 @@
+let input_box = document.getElementById('students_input_box');
+let swap_btn = document.getElementById('swap');
 let inp = document.getElementById('attendant_file');
 let group_name = document.getElementById('group_name');
 let list_text_area = document.getElementById('area_stud_list');
+
+let swap_lektion = document.getElementById('swap_lection');
 let combox = document.getElementById('select_group');
-let combox_url = document.getElementById('select_url');
+let meet_url = document.getElementById('meet_url');
 let table = document.getElementById('out_list').children[0];
 let unknown_table = document.getElementById('unknown_list').children[0];
-let get_file = document.getElementById('get_file');
+
 let obj = [];
-let file_name;
 let data;
 let set_group;
+let last_link;
+let view = 1;
+
+function swap_view(){ // приховання/відображення поля вводу групи
+    view = (view+1)%2;
+    input_box.style.display= view==1?"block":"none";
+    swap_btn.value = (view==1?"Скрити":"Відобразити" )+  "поле вводу списків груп";
+}
+
 function add_box_value(box, item){ // запис вибору опцій для сортування
-    for(let i of box.children)if(i.value === item)return; // щоб не повторювалися
+    for(let i of box)if(i.value === item)return; // щоб не повторювалися
     box.insertAdjacentHTML("BeforeEnd",'<option value="'+item+'">'+item+'</option>');
 }
 
 function set_combobox_values(){ // завантаження вже завантажених груп
-    set_group = JSON.parse(localStorage.getItem('GROUPS')); // отримання груп
+    set_group=JSON.parse(localStorage.getItem('GROUPS'));
     if(set_group){
         set_group = set_group.list; // якщо не порожнє то отримання списку
         if(set_group.length>0){ // якщо список має значення
@@ -24,19 +36,26 @@ function set_combobox_values(){ // завантаження вже завант�
                 console.log(i);
                 add_box_value(combox,i); // завантаження для вибору
             }
+            document.getElementById('get_all_file').style.display="block";
         }
     }
-}
 
+}
 
 // запис групи
 function update_list(){
     let groups= group_name.value.trim(); // назва групи без пробілів перед/після
+    let link = meet_url.value.trim();
+    link = link.split(' ');
     let string_array = [];
     let item;
     string_array = list_text_area.value.split('\n'); // список групи
+
     if(groups.length==0){console.log("Відсутня група");return;} // перевірки на наявність групи для запису
     if(string_array.length==0){console.log("Порожній список, або відсутній файл");return;}
+    if(link.length==0){console.log("Відсутній код meet-конференції");return;}
+
+
     let storage_group = JSON.parse(localStorage.getItem('GROUPS')); // отримання груп
     if(storage_group) // якщо не порожній
     {
@@ -46,22 +65,23 @@ function update_list(){
             add_box_value(combox,groups); // додання вибору
         }
     }else {storage_group = {list: [groups]};add_box_value(groups);}// якщо порожній
+
     localStorage.setItem('GROUPS', JSON.stringify(storage_group)); // збереження в списку груп змін
     let local = localStorage.getItem(groups); // отримання групи
     if(!local){// якщо порожній, то створення порожнього об'єкту та заповнення
         console.log('ok')
-        item = {group: groups, students: []}; // база для .json групи
+        item = {group: groups, links: [link], students: []}; // база для .json групи
         for(let i of string_array){ // перебір списку та додання студентів по типу ім'я, прізвище, присутність_по_датам
             if(i.trim() !==''){
                 console.log(i);
                 let pib = i.split(' ');
-                item.students.push({name: pib[1], last_name: pib[0], second_name: pib[2], dates: []}); // створення поля
+                item.students.push({name: pib[1], last_name: pib[0], second_name: pib[2], dates: [], practice: []}); // створення поля
             }
         }
     }
     else{ // перезапис користувачів зі збереженням дат
         item = JSON.parse(local); 
-        let new_item = {group: item.group, students: []};
+        let new_item = {group: item.group, links: item.links, students: []};
         for(let i = 0; i < string_array.length; i++){
             let pib = string_array[i].split(' ');
             if(pib.length<3)pib.push('');
@@ -69,7 +89,7 @@ function update_list(){
             let dat = index==-1?[]:item.students[i].dates;
             console.log(index);
             console.log(dat);
-            new_item.students.push({name: pib[0], last_name: pib[1], dates: dat});
+            new_item.students.push({name: pib[0], last_name: pib[1], dates: dat, practice: []});
         }
         item = new_item;
     }
@@ -85,24 +105,41 @@ function add_students_date(){
     for(let i of groups){ // перебір груп
         console.log(i);
         let group = JSON.parse(localStorage.getItem(i));
-        if(group.students[0].dates.findIndex(da => da.date===data)>-1){ // якщо така дата була 
-            break;
+        if(group.links[0].findIndex(lk=> lk === last_link) <0){
+            console.log("не ця група");
+            continue;
         }
-        else{ // якщо ні то перебір студентів
+        // if(group.students[0].dates.findIndex(da => da.date===data)>-1){ // якщо така дата була 
+        //     console.log('was');
+        //     for(let j of group.students){
+        //         console.log(j);
+        //         let index = splited_object.findIndex(ob=> ob[0][0] === j.last_name && ob[0][1]===j.name);
+        //         console.log(index);
+        //         if(index >-1){
+        //             obj.splice(index, 1);
+        //             splited_object.splice(index, '1'); // видалення студента зі стаиску відвідування
+        //         } // якщо студент був
+        //     }
+        //     continue;
+        // }
+        // else{ // якщо дати небуло то перебір студентів
             for(let j of group.students){
                 let index = splited_object.findIndex(ob=> ob[0][0] === j.name && ob[0][1]===j.last_name);
                 console.log(index);
                 if(index >-1){
-                    j.dates.push({date: data, was: '1'});
+                    if(swap_lektion.value=='on')j.dates.push({date: data, was: '1'});
+                    else j.practice.push({date: data, was: '1'});
+                    console.log(obj[index]);
                     obj.splice(index, 1);
                     splited_object.splice(index, '1'); // видалення студента зі стаиску відвідування
                 } // якщо студент був
-                else{j.dates.push({date: data, was: '0'})}; // якщо ні
+                else{if(swap_lektion.value=='on')j.dates.push({date: data, was: '0'});else j.practice.push({date: data, was: '1'});}; // якщо ні
                 j.dates.sort((a,b)=> a.date>b.date?1:-1);
             }
-        }
+        // }
         localStorage.setItem(i, JSON.stringify(group)); // запис групи
     }
+    console.log(obj);
     if(obj.length>0){ // нелегали
         console.log(obj);
         let unknown = JSON.parse(localStorage.getItem('UNKNOWN'));
@@ -124,13 +161,14 @@ function add_students_date(){
         update_unknown_table();
     }
 }
-
+let file_name
 //читання файлу відвідувань
 inp.addEventListener('change', 
     (event)=>{file = event.target.files; 
         obj = [];
         file_name = event.target.files[0].name;
         data = file_name.split(' ')[0];
+        last_link = file_name.split(' ')[2].match(/[a-z]{3}-[a-z]{4}-[a-z]{3}/i)[0];
         for(let item of file){
             let reader = new FileReader(); 
             reader.onload = function(its){
@@ -153,9 +191,16 @@ function revork_table(){ // вивід таблиці з фільтрами
     for(let i of group.students[0].dates){
         table.children[0].insertAdjacentHTML('BeforeEnd', '<td>'+i.date+'</td>');
     }
+    for(let i of group.students[0].practice){
+        table.children[0].insertAdjacentHTML('BeforeEnd', '<td>'+i.date+'</td>');
+    }
+    
     for(let i of group.students){
         table.insertAdjacentHTML('BeforeEnd', '<tr><td>'+i.last_name+' '+i.name+' '+i.second_name+'</td></tr>');
         for(let j of i.dates){
+            table.lastChild.insertAdjacentHTML('BeforeEnd', '<td>'+j.was+'</td>');
+        }
+        for(let j of i.practice){
             table.lastChild.insertAdjacentHTML('BeforeEnd', '<td>'+j.was+'</td>');
         }
     }
@@ -168,7 +213,6 @@ function update_unknown_table(){ // вивід таблиці невизначе
     unknown_table.insertAdjacentHTML('BeforeEnd', "<tr><td>Прізвище</td><td>Ім'я</td></tr>");
     let group = JSON.parse(localStorage.getItem('UNKNOWN'));
     if(!group)return;
-    group.students.sort((a,b)=> a.dates.length>b.dates.length?1:-1)
     for(let i of group.students[0].dates){
         unknown_table.children[0].insertAdjacentHTML('BeforeEnd', '<td>'+i.date+'</td>');
     }
@@ -178,4 +222,58 @@ function update_unknown_table(){ // вивід таблиці невизначе
             unknown_table.lastChild.insertAdjacentHTML('BeforeEnd', '<td>'+j.was+'</td>');
         }
     }
+}
+
+
+function get_group(group_name){
+    let list = [];
+    for(let i of group_name){
+        console.log(i)
+        let line = i+';\nПІБ';
+        let block = JSON.parse(localStorage.getItem(i));
+        for(let j of block.students[0].dates){
+            line += ';`'+j.date;
+        }
+        line+='\n';
+        for(let j of block.students){
+            line += j.last_name + ' '+j.name + ' '+j.second_name;
+            for(let d of j.dates) line+=';'+d.was;
+            line+=';\n';
+        }
+        list.push(line);
+        list.push('\n')
+    }
+    return list;
+}
+
+function load_single_file(){
+    let item = combox.value;
+    console.log(item);
+    let list = [];
+    list = get_group([item]);
+
+    let blob = new Blob(['\uFEFF'+list], {type: 'text/csv;charset=utf-8'});
+    let url = URL.createObjectURL(blob);
+    let link = document.createElement('a');
+    link.href = url;
+    link.download = 'Відвідування групи '+item;
+    link.click();
+    link.remove();
+    setTimeout(()=>{URL.revokeObjectURL(url),100});
+}
+
+function load_csv_file(){
+    let list = [];
+    let group = JSON.parse(localStorage.getItem('GROUPS')).list;
+    
+    list = get_group(group);
+
+    let blob = new Blob(['\uFEFF'+list], {type: 'text/csv;charset=utf-8'});
+    let url = URL.createObjectURL(blob);
+    let link = document.createElement('a');
+    link.href = url;
+    link.download = 'Зігільний файл відвідувань';
+    link.click();
+    link.remove();
+    setTimeout(()=>{URL.revokeObjectURL(url),100});
 }
