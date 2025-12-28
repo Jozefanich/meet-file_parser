@@ -127,13 +127,13 @@ function add_students_date(){
                 let index = splited_object.findIndex(ob=> ob[0][0] === j.name && ob[0][1]===j.last_name);
                 console.log(index);
                 if(index >-1){
-                    if(swap_lektion.value=='on')j.dates.push({date: data, was: '1'});
-                    else j.practice.push({date: data, was: '1'});
+                    if(swap_lektion.checked)j.dates.push({date: data, was: '1'});
+                    else {j.practice.push({date: data, was: '1'});console.log('practice')}
                     console.log(obj[index]);
                     obj.splice(index, 1);
                     splited_object.splice(index, '1'); // видалення студента зі стаиску відвідування
                 } // якщо студент був
-                else{if(swap_lektion.value=='on')j.dates.push({date: data, was: '0'});else j.practice.push({date: data, was: '1'});}; // якщо ні
+                else{if(swap_lektion.checked)j.dates.push({date: data, was: '0'});else j.practice.push({date: data, was: '1'});}; // якщо ні
                 j.dates.sort((a,b)=> a.date>b.date?1:-1);
             }
         // }
@@ -187,12 +187,16 @@ function revork_table(){ // вивід таблиці з фільтрами
     }
     let index = combox.value;
     let group = JSON.parse(localStorage.getItem(index));
-    table.insertAdjacentHTML('BeforeEnd', "<tr><td>ПІБ</td></tr>");
+    table.insertAdjacentHTML('BeforeEnd', '<tr><td rowspan="2">ПІБ</td></tr>');
+    table.children[0].insertAdjacentHTML('BeforeEnd', '<td colspan="'+group.students[0].dates.length+'">Лекції</td>');
+    table.children[0].insertAdjacentHTML('BeforeEnd', '<td colspan="'+group.students[0].practice.length+'">Лабораторні</td>');
+    table.insertAdjacentHTML('BeforeEnd', '<tr></tr>');
     for(let i of group.students[0].dates){
-        table.children[0].insertAdjacentHTML('BeforeEnd', '<td>'+i.date+'</td>');
+        table.lastChild.insertAdjacentHTML('BeforeEnd', '<td>'+i.date+'</td>');
     }
+    
     for(let i of group.students[0].practice){
-        table.children[0].insertAdjacentHTML('BeforeEnd', '<td>'+i.date+'</td>');
+        table.lastChild.insertAdjacentHTML('BeforeEnd', '<td>'+i.date+'</td>');
     }
     
     for(let i of group.students){
@@ -235,7 +239,7 @@ function get_group(group_name){
             line += ';`'+j.date;
         }
         line+=';Лабораторні';
-        for(let j of block.students[0].dates){
+        for(let j of block.students[0].practice){
             line += ';`'+j.date;
         }
         line+='\n';
@@ -278,7 +282,7 @@ function load_csv_file(){
     let url = URL.createObjectURL(blob);
     let link = document.createElement('a');
     link.href = url;
-    link.download = 'Зігільний файл відвідувань';
+    link.download = 'Загальний файл відвідувань';
     link.click();
     link.remove();
     setTimeout(()=>{URL.revokeObjectURL(url),100});
