@@ -64,7 +64,7 @@ function update_list(){
             console.log(groups);
             add_box_value(combox,groups); // додання вибору
         }
-    }else {storage_group = {list: [groups]};add_box_value(groups);}// якщо порожній
+    }else {storage_group = {list: [groups]};add_box_value(combox,groups);}// якщо порожній
 
     localStorage.setItem('GROUPS', JSON.stringify(storage_group)); // збереження в списку груп змін
     let local = localStorage.getItem(groups); // отримання групи
@@ -229,15 +229,21 @@ function get_group(group_name){
     let list = [];
     for(let i of group_name){
         console.log(i)
-        let line = i+';\nПІБ';
+        let line = i+';\nПІБ;Лекції';
         let block = JSON.parse(localStorage.getItem(i));
+        for(let j of block.students[0].dates){
+            line += ';`'+j.date;
+        }
+        line+=';Лабораторні';
         for(let j of block.students[0].dates){
             line += ';`'+j.date;
         }
         line+='\n';
         for(let j of block.students){
-            line += j.last_name + ' '+j.name + ' '+j.second_name;
+            line += j.last_name + ' '+j.name + ' '+j.second_name+';';
             for(let d of j.dates) line+=';'+d.was;
+            line+=';';
+            for(let d of j.practice) line+=';'+d.was;
             line+=';\n';
         }
         list.push(line);
