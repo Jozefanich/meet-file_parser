@@ -188,7 +188,7 @@ function revork_table(){ // вивід таблиці з фільтрами
     let index = combox.value;
     let group = JSON.parse(localStorage.getItem(index));
     table.insertAdjacentHTML('BeforeEnd', '<tr><td rowspan="2">ПІБ</td></tr>');
-    if(group.students[0].dates.length)table.children[0].insertAdjacentHTML('BeforeEnd', '<td colspan="'+group.students[0].dates.length+'">Лекції</td>');
+    if(group.students[0].dates.length>0)table.children[0].insertAdjacentHTML('BeforeEnd', '<td colspan="'+group.students[0].dates.length+'">Лекції</td>');
     if(group.students[0].practice.length>0)table.children[0].insertAdjacentHTML('BeforeEnd', '<td colspan="'+group.students[0].practice.length+'">Лабораторні</td>');
     table.insertAdjacentHTML('BeforeEnd', '<tr></tr>');
     for(let i of group.students[0].dates){
