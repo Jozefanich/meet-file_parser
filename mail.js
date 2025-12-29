@@ -133,7 +133,7 @@ function add_students_date(){
                     obj.splice(index, 1);
                     splited_object.splice(index, '1'); // видалення студента зі стаиску відвідування
                 } // якщо студент був
-                else{if(swap_lektion.checked)j.dates.push({date: data, was: '0'});else j.practice.push({date: data, was: '1'});}; // якщо ні
+                else{if(swap_lektion.checked)j.dates.push({date: data, was: '0'});else j.practice.push({date: data, was: '0'});}; // якщо ні
                 j.dates.sort((a,b)=> a.date>b.date?1:-1);
             }
         // }
