@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Система обліку відвідуваності</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="mail.js" defer></script>
+</head>
+<body onload="set_combobox_values();update_unknown_table()">
+    <div class="container">
+        <header>
+            <h1>Облік відвідуваності</h1>
+        </header>
+
+        <section class="card">
+            <h2>Коректний формат списків груп</h2>
+            <div id="area_sample" class="sample-box">
+                <code>
+                    Ім'я Прізвище \n <br>
+                    Ім'я Прізвище \n<br>
+                    ...<br>
+                    Прізвище та ім'я обов'язково
+                </code>
+            </div>
+            <input type="button" value="Скрити ввід групи" id="swap" onclick="swap_view()" class="btn-secondary">
+        </section>
+
+        <section id="students_input_box" class="card">
+            <h2>Список групи</h2>
+            <textarea name="area_stud_list" id="area_stud_list" placeholder="Введіть список студентів тут..."></textarea>
+            
+            <div class="input-grid">
+                <div class="input-group">
+                    <label for="group_name">Група:</label>
+                    <input type="text" name="group_name" id="group_name" placeholder="Назва групи">
+                </div>
+                <div class="input-group">
+                    <label for="meet_url">Код на Meet:</label>
+                    <input type="text" name="meet_url" id="meet_url" placeholder="xxx-xxxx-xxx">
+                </div>
+            </div>
+            <input type="button" value="Зберегти список групи" onclick="update_list()" class="btn-primary">
+        </section>
+
+        <section class="card">
+            <h2>Відвідуваність</h2>
+            <div class="file-upload-wrapper">
+                <input type="file" name="attendant_file" id="attendant_file" class="file-input">
+                <div class="checkbox-group">
+                    <input type="checkbox" name="swap_lection" id="swap_lection" checked>
+                    <label for="swap_lection">1-лекція / 0-лабораторні</label>
+                </div>
+            </div>
+            <input type="button" value="Зафіксувати відвідування" onclick="add_students_date()" class="btn-primary">
+        </section>
+
+        <section class="card">
+            <h2>Вивід списків</h2>
+            <div class="controls-row">
+                <select name="select_group" id="select_group"></select>
+                <input type="button" value="Вивести таблицю" onclick="revork_table();get_file.style.display='inline-block'" class="btn-primary">
+            </div>
+            
+            <div class="download-buttons">
+                <input type="button" name="get_file" id="get_file" value="Завантажити CSV групи" onclick="load_single_file()" style="display: none;" class="btn-success">
+                <input type="button" name="get_all_file" id="get_all_file" value="Завантажити загальний CSV" onclick="load_csv_file()" style="display: none;" class="btn-success">
+            </div>
+
+            <div class="table-container">
+                <table id="out_list">
+                    <tbody></tbody>
+                </table>
+            </div>
+        </section>
+
+        <section class="card unknown-section">
+            <h2>Невідомі студенти</h2>
+            <div class="table-container">
+                <table id="unknown_list">
+                    <tbody></tbody>
+                </table>
+            </div>
+        </section>
+    </div>
+</body>
+</html>
